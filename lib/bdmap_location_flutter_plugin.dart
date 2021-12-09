@@ -61,6 +61,12 @@ class LocationFlutterPlugin {
     return;
   }
 
+  /// 启动后台定位
+  void startLocationInBackground() {
+    _channel.invokeMethod('startLocationInBackground');
+    return;
+  }
+
   /// 停止定位
   void stopLocation() {
     _channel.invokeMethod('stopLocation');

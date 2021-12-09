@@ -2,6 +2,10 @@ package com.baidu.bdmap_location_flutter_plugin;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.app.Activity;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Intent;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -41,8 +45,38 @@ public class LocationFlutterPlugin implements MethodCallHandler, EventChannel.St
     private boolean isInChina = false;
     private boolean isNotify = false;
 
+    private NotificationUtils mNotificationUtils;
+    private Notification notification;
+
     LocationFlutterPlugin(Context context) {
         mContext = context;
+        init();
+    }
+
+    private void init() {
+        //android8.0及以上使用NotificationUtils
+        if (Build.VERSION.SDK_INT >= 26) {
+            mNotificationUtils = new NotificationUtils(mContext);
+            Notification.Builder builder2 = mNotificationUtils.getAndroidChannelNotification
+                    ("定位功能", "正在后台定位");
+            notification = builder2.build();
+        } else {
+            //获取一个Notification构造器
+            Notification.Builder builder = new Notification.Builder(mContext);
+            Intent nfIntent = new Intent(mContext, mContext.getClass());
+
+            builder.setContentIntent(PendingIntent.
+                    getActivity(mContext, 0, nfIntent, 0)) // 设置PendingIntent
+                    .setContentTitle("定位功能") // 设置下拉列表里的标题
+//                    .setSmallIcon(R.drawable.ic_launcher) // 设置状态栏内的小图标
+                    .setContentText("正在后台定位") // 设置上下文内容
+                    .setSound(null)
+                    .setVibrate(null)
+                    .setWhen(System.currentTimeMillis()); // 设置该通知发生的时间
+
+            notification = builder.build(); // 获取构建好的Notification
+        }
+        notification.defaults = Notification.DEFAULT_SOUND; //设置为默认的声音
     }
 
     /**
@@ -67,6 +101,8 @@ public class LocationFlutterPlugin implements MethodCallHandler, EventChannel.St
     public void onMethodCall(MethodCall call, Result result) {
         if ("startLocation".equals(call.method)) {
             startLocation(); // 启动定位
+        } else if ("startLocationInBackground".equals(call.method)) {
+            startLocationInBackground(); // 启动后台定位
         } else if ("stopLocation".equals(call.method)) {
             stopLocation(); // 停止定位
         } else if ("updateOption".equals(call.method)) { // 设置定位参数
@@ -279,6 +315,16 @@ public class LocationFlutterPlugin implements MethodCallHandler, EventChannel.St
         }
     }
 
+    /**
+     * 开始后台定位
+     */
+    private void startLocationInBackground() {
+        if (null != mLocationClient) {
+            //开启后台定位
+            mLocationClient.enableLocInForeground(1, notification);
+            mLocationClient.start();
+        }
+    }
 
     /**
      * 格式化时间
