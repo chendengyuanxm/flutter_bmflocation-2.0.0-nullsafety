@@ -37,7 +37,7 @@ public class LocationFlutterPlugin implements MethodCallHandler, EventChannel.St
     private static final String CHANNEL_METHOD_LOCATION = "bdmap_location_flutter_plugin";
     private static final String CHANNEL_STREAM_LOCATION = "bdmap_location_flutter_plugin_stream";
 
-    private Context mContext = null;
+    private Activity mContext = null;
     private LocationClient mLocationClient = null;
     private EventChannel.EventSink mEventSink = null;
     private BDNotifyListener mNotifyListener;
@@ -46,10 +46,10 @@ public class LocationFlutterPlugin implements MethodCallHandler, EventChannel.St
     private boolean isInChina = false;
     private boolean isNotify = false;
 
-    private NotificationUtils mNotificationUtils;
+    private android.src.main.java.com.baidu.bdmap_location_flutter_plugin.NotificationUtils mNotificationUtils;
     private Notification notification;
 
-    LocationFlutterPlugin(Context context) {
+    LocationFlutterPlugin(Activity context) {
         mContext = context;
         init();
     }
@@ -57,7 +57,7 @@ public class LocationFlutterPlugin implements MethodCallHandler, EventChannel.St
     private void init() {
         //android8.0及以上使用NotificationUtils
         if (Build.VERSION.SDK_INT >= 26) {
-            mNotificationUtils = new NotificationUtils(mContext);
+            mNotificationUtils = new android.src.main.java.com.baidu.bdmap_location_flutter_plugin.NotificationUtils(mContext);
             Notification.Builder builder2 = mNotificationUtils.getAndroidChannelNotification
                     ("定位功能", "正在后台定位");
             notification = builder2.build();
@@ -84,7 +84,7 @@ public class LocationFlutterPlugin implements MethodCallHandler, EventChannel.St
      * 注册组件
      */
     public static void registerWith(Registrar registrar) {
-        LocationFlutterPlugin plugin = new LocationFlutterPlugin(registrar.context());
+        LocationFlutterPlugin plugin = new LocationFlutterPlugin(registrar.activity());
         /**
          * 开始、停止定位
          */
